@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sdfm"
+version = "0.1.0"
+description = "Spatial Disorder Framework Manipulation"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "networkx",
+    "ase>=3.23.0",
+]
+
+
+[tool.setuptools.packages.find]
+where = ["sdfm"]
+
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit",
+    "black",
+    "isort",
+    "flake8",
+]
+
+
+[tool.setuptools.packages.find]
+include = ["mypackage"]
