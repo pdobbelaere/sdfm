@@ -1,6 +1,3 @@
-"""
-Select atoms or building blocks through various rules
-"""
 import copy
 from typing import Iterable
 
@@ -9,7 +6,7 @@ import ase.symbols
 import numpy as np
 import networkx as nx
 
-from sdfm.manip.template import AtomsTemplate
+from sdfm.template import AtomsTemplate
 
 
 class AtomSelection:

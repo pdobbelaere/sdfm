@@ -1,0 +1,13 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.swp
+*.pyc
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Distribution / packaging
+*.egg-info/
+*.egg

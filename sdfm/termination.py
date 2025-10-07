@@ -1,4 +1,3 @@
-from typing import Sequence
 
 import ase
 import ase.geometry

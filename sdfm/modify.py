@@ -1,8 +1,3 @@
-"""
-User interface to construct defective supercells or design clusters
-TODO: revamp this
-"""
-
 import pickle
 from dataclasses import dataclass, field
 from typing import Iterable
@@ -11,10 +6,9 @@ import ase
 import numpy as np
 import networkx as nx
 
-from sdfm.manip.template import AtomsTemplate, BuildingBlock
-from sdfm.manip.termination import make_termination
-from sdfm.manip.utils import compute_inertia, match_point_clouds
-from mypackage.utils.io import PickleIOMixin
+from sdfm.template import AtomsTemplate, BuildingBlock
+from sdfm.termination import make_termination
+from sdfm.utils import compute_inertia, match_point_clouds
 
 
 # class State(Enum):
@@ -75,7 +69,7 @@ class DanglingBond:
         return [bond.invert() for bond in bonds] if invert else bonds
 
 
-class ExtendedAtomsTemplate(AtomsTemplate, PickleIOMixin):
+class ExtendedAtomsTemplate(AtomsTemplate):
     """Additional functionality for structure manipulation"""
     ghost_atoms: ase.Atoms
     termination: ase.Atoms
@@ -152,7 +146,9 @@ class ExtendedAtomsTemplate(AtomsTemplate, PickleIOMixin):
                  for old, new in zip(dangling_bonds, new_block.dangling_bonds)]
         graph.add_edges_from(bonds, breakable=True)
         self.graph = nx.compose(self.graph, graph)
-        for dangling_bond in dangling_bonds:
+
+        # make copy to avoid modifying while iterating when dangling_bonds is self.dangling_bonds
+        for dangling_bond in set(dangling_bonds):
             self.dangling_bonds.remove(dangling_bond)
 
         self.atoms += atoms
@@ -171,6 +167,7 @@ class ExtendedAtomsTemplate(AtomsTemplate, PickleIOMixin):
     def swap_blocks(self, block_ids: Iterable[int], new_block: 'StandaloneBuildingBlock') -> None:
         """Change out specified blocks with new block"""
         blocks = [self.blocks[i] for i in block_ids]
+        assert all(block.connections == new_block.connections for block in blocks)
         dangling_bonds_list = [DanglingBond.from_block(b, invert=True) for b in blocks]
         self.remove_blocks(block_ids)
         for dangling_bonds in dangling_bonds_list:
@@ -256,8 +253,13 @@ class StandaloneBuildingBlock:
     #     self.reset()
     #     return new_bonds
 
-    def get_atoms(self) -> ase.Atoms:
-        return self.atoms.copy()
+    def get_atoms(self, ghost_atoms: bool = False) -> ase.Atoms:
+        # TODO: duplicated code..?
+        atoms = self.atoms.copy()
+        if ghost_atoms:
+            pos = [bond.pos[1] for bond in self.dangling_bonds]
+            atoms += ase.Atoms(numbers=np.zeros(len(pos)), positions=pos)
+        return atoms
 
     @property
     def bonds(self) -> list[tuple[int, int]]: return list(self.graph.edges)

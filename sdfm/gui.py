@@ -1,7 +1,3 @@
-"""
-
-"""
-
 import subprocess
 import tempfile
 import tkinter as tk
@@ -16,9 +12,9 @@ from ase.data import atomic_names as names
 from ase.data import chemical_symbols as symbols
 from ase.gui.gui import GUI
 
-from sdfm.manip.template import AtomsTemplate
-from sdfm.manip.modify import ExtendedAtomsTemplate, DanglingBond
-from sdfm.manip.selection import AtomSelection
+from sdfm.template import AtomsTemplate
+from sdfm.modify import ExtendedAtomsTemplate, DanglingBond
+from sdfm.selection import AtomSelection
 
 VESTA_COMMAND = 'vesta'
 
@@ -79,18 +75,14 @@ def visualise_dangling_bonds(dangling_bonds: list[DanglingBond]) -> None:
 
 
 def visualise_selection(selection: AtomSelection) -> None:
-    """TODO: the dependencies here are ugly"""
-
-    def set_selection():
-        gui.images.selected[:] = mask
-        root.after(30, set_selection)  # call every 30 ms
-
+    """"""
     atoms, mask = selection._template.atoms.copy(), selection.get_atoms_mask()
     gui = GUI(images=[atoms])
-    root = gui.window.win
     modify_gui(gui, keep_status=True)
-    set_selection()
-    root.mainloop()
+    gui.images.selected[:] = mask
+    gui.b1 = None  # unset mouse left click
+    gui.draw()
+    gui.window.win.mainloop()
 
 
 # TODO: everything below is old

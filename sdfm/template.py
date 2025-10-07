@@ -7,7 +7,7 @@ import numpy as np
 import networkx as nx
 from networkx.algorithms.isomorphism import vf2pp_is_isomorphic
 
-from mypackage.utils import sort_objects
+from sdfm.utils import sort_objects
 
 KEY_TEMPLATE = 'template_name'
 BOND_CUTOFF = 5  # TODO: arbitrary
@@ -50,8 +50,12 @@ def graph_from_atoms(atoms: ase.Atoms) -> nx.Graph:
             graph.edges[e].setdefault('breakable', True)
             graph.edges[e].setdefault('order', 1)
 
-    # print(*[e for e in graph.edges.data()], sep='\n')
-    # print(*[n for n in graph.nodes.data()], sep='\n')
+    # make sure atoms and graph nodes are labelled consistently
+    if 'labels' in atoms.arrays:
+        node_map = {i: l for i, l in enumerate(atoms.arrays['labels'])}
+        graph = nx.relabel_nodes(graph, node_map)
+    else:
+        atoms.arrays['labels'] = np.arange(len(atoms))
 
     return graph
 
@@ -94,10 +98,8 @@ class AtomsTemplate:
     def init(self) -> None:
         """"""
         if self.graph is None:
-            graph = graph_from_atoms(self.atoms)
             self.atoms.arrays['labels'] = self._make_node_labels(len(self))
-            node_map = {i: l for i, l in enumerate(self.labels)}
-            self.graph = nx.relabel_nodes(graph, node_map)
+            self.graph = graph_from_atoms(self.atoms)
         else:
             # check whether ids <> labels mapping is consistent
             assert len(self.graph) == len(self.atoms) and set(self.labels) == set(self.graph), 'What in tarnation'

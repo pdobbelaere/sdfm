@@ -1,9 +1,3 @@
-"""
-Defining templates and rules for extracting clusters from bulk material
-TODO: allow option to focus on elements?
-TODO: some easy way to define templates
-"""
-
 from typing import Iterable
 from collections import deque
 from dataclasses import dataclass
@@ -12,16 +6,15 @@ import ase
 import numpy as np
 import networkx as nx
 
-from sdfm.manip.template import AtomsTemplate, KEY_TEMPLATE, is_matching_template, BuildingBlock
-from sdfm.manip.termination import make_termination
-from mypackage.utils.io import PickleIOMixin
+from sdfm.template import AtomsTemplate, KEY_TEMPLATE, is_matching_template, BuildingBlock
+from sdfm.termination import make_termination
 
 
 def supertuple(data: Iterable[int]) -> tuple[int]:
     return tuple(sorted(set(data)))
 
 
-class RecipeBook(PickleIOMixin):
+class RecipeBook:
     """Holds a number of templates and corresponding cluster recipes"""
 
     def __init__(self):

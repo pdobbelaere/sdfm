@@ -1,6 +1,21 @@
 import sys
+from typing import Callable, Iterable
 
 import numpy as np
+
+
+def sort_objects(objs: list, filter_func: Callable = None, filter_keys: Iterable = None):
+    """Sort objects into a grouped dict according to the provided filter function."""
+    assert not (filter_func is None and filter_keys is None)
+    if filter_keys is not None:
+        values = list(filter_keys)
+        assert len(values) == len(objs)
+    else:
+        values = [filter_func(_) for _ in objs]
+    sorted_data = {k: [] for k in set(values)}
+    for val, obj in zip(values, objs):
+        sorted_data[val].append(obj)
+    return sorted_data
 
 
 class SimplePCA:
